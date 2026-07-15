@@ -81,6 +81,34 @@ public sealed class OuribankSandboxTests
         }
     }
 
+    /// <summary>
+    /// <c>account_number</c> real não está no <c>pass</c> (discovery.md §4, gap registrado) — sonda
+    /// com um número fictício, mesma estratégia de <see cref="TransactionsByFictitiousTxIdReturnsEmptyOrDomainError"/>.
+    /// Um 4xx de domínio (conta não encontrada) já prova acesso real ao recurso. Leitura pura.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Sandbox")]
+    public async Task AccountStatementForFictitiousAccountReturnsDataOrDomainError()
+    {
+        using var provider = BuildServiceProvider();
+        var client = provider.GetRequiredService<OuribankClient>();
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        try
+        {
+            var response = await client.Transactions.GetAccountStatementsAsync("00000000", today, today);
+            output.WriteLine(
+                $"GET transactions/account/{{fictício}}: 200, availableBalance="
+                + $"{response.Statements?.AccountInfo?.AvailableBalance?.ToString() ?? "null"} — acesso real ao recurso confirmado.");
+        }
+        catch (OuribankApiException exception)
+        {
+            // 4xx de domínio também prova acesso real (accountNumber fictício; account_number real fora do pass).
+            ((int)exception.StatusCode).ShouldBeLessThan(500);
+            output.WriteLine($"GET transactions/account/{{fictício}}: HTTP {(int)exception.StatusCode} de domínio — acesso real confirmado.");
+        }
+    }
+
     private static ServiceProvider BuildServiceProvider()
     {
         string Req(string name) =>

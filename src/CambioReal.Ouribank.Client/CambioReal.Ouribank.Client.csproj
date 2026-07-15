@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>CambioReal.Ouribank</RootNamespace>
+    <AssemblyName>CambioReal.Ouribank.Client</AssemblyName>
+    <PackageId>CambioReal.Ouribank.Client</PackageId>
+    <Description>Cliente .NET tipado para a OuriBank Payment Gateway API (PIX payin via QR dinâmico, payout/cashout, fx-rate, DICT, webhooks) com mTLS e cadeia de dois tokens — mesmo padrão dos SDKs cambioreal.</Description>
+    <IsPackable>true</IsPackable>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CambioReal.Ouribank.Client.Tests" />
+  </ItemGroup>
+
+</Project>

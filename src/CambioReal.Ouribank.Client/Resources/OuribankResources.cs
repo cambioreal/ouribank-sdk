@@ -66,11 +66,20 @@ public sealed class TransactionsResource
         client.GetAsync<OuribankTransactionsResponse>(
             $"payment-gateway/v1/transactions/{Uri.EscapeDataString(origin)}/{Uri.EscapeDataString(originId)}", cancellationToken);
 
-    /// <summary>Extrato/saldo da conta. <c>GET payment-gateway/v1/transactions/account/{accountNumber}</c> (leitura).</summary>
-    public Task<System.Text.Json.JsonElement> GetAccountStatementsAsync(
-        string accountNumber, CancellationToken cancellationToken = default) =>
-        client.GetAsync<System.Text.Json.JsonElement>(
-            $"payment-gateway/v1/transactions/account/{Uri.EscapeDataString(accountNumber)}", cancellationToken);
+    /// <summary>
+    /// Extrato/saldo da conta.
+    /// <c>GET payment-gateway/v1/transactions/account/{accountNumber}?startDate=&amp;endDate=</c> —
+    /// confirmado no legado (<c>PayoutService::balance()</c>, sempre envia as duas datas via
+    /// <c>now()-&gt;toDateString()</c>). Leitura; também insumo do <c>debitParty.accountNumber</c>
+    /// no cashout. Nunca exercitado ao vivo (<c>account_number</c> fora do <c>pass</c> —
+    /// discovery.md §4).
+    /// </summary>
+    public Task<OuribankAccountStatementResponse> GetAccountStatementsAsync(
+        string accountNumber, DateOnly startDate, DateOnly endDate, CancellationToken cancellationToken = default) =>
+        client.GetAsync<OuribankAccountStatementResponse>(
+            $"payment-gateway/v1/transactions/account/{Uri.EscapeDataString(accountNumber)}"
+            + $"?startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}",
+            cancellationToken);
 }
 
 /// <summary>Payout/cashout/refund — **FINANCIAL-WRITE**. <c>payment-gateway/v1/payment/cashout</c>.</summary>

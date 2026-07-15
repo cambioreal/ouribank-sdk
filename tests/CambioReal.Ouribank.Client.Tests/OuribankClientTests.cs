@@ -146,4 +146,22 @@ public sealed class OuribankClientTests
         transport.Requests.Single().RequestUri!.ToString()
             .ShouldBe("https://api.sbx.ouribank.com/payment-gateway/v1/transactions/CambioReal/op-1");
     }
+
+    [Fact]
+    public async Task AccountStatementParsesAvailableBalanceAndSendsDateRange()
+    {
+        // Shape confirmado no legado (PayoutService::balance()): statements.accountInfo.availableBalance.
+        var transport = new RecordingHttpMessageHandler();
+        transport.RespondWith(HttpStatusCode.OK, """{"statements":{"accountInfo":{"availableBalance":1234.56}}}""");
+
+        var httpClient = new HttpClient(transport) { BaseAddress = NewOptions().ResolveBaseAddress() };
+        var client = new OuribankClient(httpClient, Options.Create(NewOptions()));
+
+        var response = await client.Transactions.GetAccountStatementsAsync(
+            "27666194", new DateOnly(2026, 7, 15), new DateOnly(2026, 7, 15));
+
+        response.Statements!.AccountInfo!.AvailableBalance.ShouldBe(1234.56m);
+        transport.Requests.Single().RequestUri!.ToString().ShouldBe(
+            "https://api.sbx.ouribank.com/payment-gateway/v1/transactions/account/27666194?startDate=2026-07-15&endDate=2026-07-15");
+    }
 }

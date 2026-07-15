@@ -145,6 +145,33 @@ public sealed record OuribankTransactionsResponse
     public IReadOnlyList<OuribankTransactionRecord>? Records { get; init; }
 }
 
+/// <summary>
+/// Resposta de <c>GET payment-gateway/v1/transactions/account/{accountNumber}</c> — extrato/saldo
+/// da conta. Confirmado no legado (<c>PayoutService::balance()</c>, comentário "TODO: Temporário,
+/// consulta de saldo para quando o Internet Banking não funciona"): o legado só lê
+/// <c>statements.accountInfo.availableBalance</c>. <b>Endpoint nunca exercitado ao vivo</b> —
+/// <c>account_number</c> não está no <c>pass</c> (discovery.md §4, gap registrado); schema
+/// modelado best-effort com o único campo confirmado. Propriedades adicionais que a API
+/// eventualmente devolva (ex.: lista de lançamentos do extrato) são ignoradas silenciosamente
+/// pelo deserializador até serem confirmadas ao vivo.
+/// </summary>
+public sealed record OuribankAccountStatementResponse
+{
+    public OuribankAccountStatements? Statements { get; init; }
+}
+
+/// <summary>Bloco <c>statements</c> — só <see cref="AccountInfo"/> é confirmado no legado.</summary>
+public sealed record OuribankAccountStatements
+{
+    public OuribankAccountInfo? AccountInfo { get; init; }
+}
+
+/// <summary>Bloco <c>statements.accountInfo</c> — <see cref="AvailableBalance"/> confirmado no legado.</summary>
+public sealed record OuribankAccountInfo
+{
+    public decimal? AvailableBalance { get; init; }
+}
+
 /// <summary>Parte de um cashout (<c>creditParty</c>/<c>debitParty</c>) — confirmado no legado.</summary>
 public sealed record OuribankParty
 {

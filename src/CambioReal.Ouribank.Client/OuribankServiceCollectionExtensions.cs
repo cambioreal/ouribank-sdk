@@ -35,10 +35,18 @@ public static class OuribankServiceCollectionExtensions
         services.AddOptions<OuribankOptions>().Validate(
             options =>
             {
-                options.Validate();
-                return true;
+                try
+                {
+                    options.Validate();
+                    return true;
+                }
+                catch (InvalidOperationException)
+                {
+                    return false;
+                }
             },
-            "A configuração do OuribankOptions é inválida.");
+            "A configuração do OuribankOptions é inválida.")
+            .ValidateOnStart();
 
         services.TryAddSingleton(TimeProvider.System);
         services.TryAddSingleton<IOuribankTokenProvider, OuribankTokenProvider>();

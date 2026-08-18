@@ -24,3 +24,20 @@ statuses numéricos). Cashout (payout/refund) = **financial-write**, nunca execu
 `pass cambio-real-v2/ouribank/*` + `pass cambio-real-v2/providers/ouribank/sandbox-client-{cert,key}`
 → variáveis de ambiente. Nunca em appsettings/fixtures; nenhum teste imprime PEM/token/PII.
 Discovery completo: `docs/providers/ouribank/discovery.md`.
+
+## Instalação e uso
+
+Pacote no GitHub Packages da org `cambioreal` (feed configurado no `NuGet.config` do repo consumidor):
+
+```bash
+dotnet add package CambioReal.Ouribank.Client
+```
+
+```csharp
+// Registro via DI — credenciais vêm de config segura (env/Secret/pass), nunca versionadas.
+builder.Services.AddOuribankClient(builder.Configuration.GetSection(OuribankOptions.SectionName));
+
+// ...injete CambioReal.Ouribank.OuribankClient onde precisar.
+```
+
+Também há a sobrecarga `AddOuribankClient(Action<OuribankOptions>)` para configuração inline.
